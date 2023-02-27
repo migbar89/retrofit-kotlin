@@ -10,23 +10,21 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.retrofit_2022.databinding.ActivityMainBinding
+import com.example.retrofit_2022.models.ProductModel
+import com.example.retrofit_2022.retrofit.ServiceRetrofit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
   var adapter = AdapterProduct()
-  private lateinit var binding:   ActivityMainBinding
+  private lateinit var binding: ActivityMainBinding
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-
-
     binding = ActivityMainBinding.inflate(layoutInflater)
     setContentView(binding.root)
-
-
-    binding.recycleProducto.layoutManager= LinearLayoutManager(this, LinearLayout.VERTICAL,false)
-
+    binding.recycleProducto.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
+    ServiceRetrofit.obtenerProductos(adapter)
     binding.recycleProducto.adapter = adapter
   }
 
@@ -35,7 +33,6 @@ class MainActivity : AppCompatActivity() {
 
       val builder = AlertDialog.Builder(this)
       val inflater = layoutInflater
-      //builder.setTitle("Nuevo Producot")
       val dialogLayout = inflater.inflate(R.layout.activity_nuevoprod, null)
 
       val etnombre = dialogLayout.findViewById<EditText>(R.id.et_nuevo_nombre)
@@ -45,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
       builder.setView(dialogLayout)
       builder.setPositiveButton("Guardar") { dialogInterface, i ->
-        var pro = ProductoModel(
+        var pro = ProductModel(
           0,
           etnombre.text.toString(),
           etprecio.text.toString().toFloat(),
@@ -53,19 +50,15 @@ class MainActivity : AppCompatActivity() {
         )
 
         CoroutineScope(Dispatchers.IO).launch {
-          // service.guardarProductos(applicationContext, pro)
-
+          ServiceRetrofit.guardarProductos(applicationContext, pro)
         }
-        //  service.obtenerProductos(adapter)
-
-
+        ServiceRetrofit.obtenerProductos(adapter)
       }
       builder.show()
-
     }
-
     return true
   }
+
   override fun onCreateOptionsMenu(menu: Menu?): Boolean {
     val inflater = menuInflater
     inflater.inflate(R.menu.menu_producto, menu)
